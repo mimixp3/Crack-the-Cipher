@@ -189,12 +189,12 @@
     <h1 class="title">THE CIPHER ROOM</h1>
     <div class="subtitle">ONE DOOR. ONE CHANCE.</div>
     <div class="welcome">
-      The room is sealed. There's one message scratched into the wall, and it isn't in a language anyone speaks anymore.
-      <br><em>Pick what you bring in with you, then get to work.</em>
+      The room is sealed with a message scratched onto the wall. Encoded in a layer that is inspired by an encryption dating back to 100 BC.
+      <br><em>Pick what you bring in with you</em>
     </div>
 
     <div class="teams-section">
-      <div class="teams-title">CHOOSE YOUR SPECIALTY</div>
+      <div class="teams-title">CHOOSE A SPECIALTY</div>
       <div class="scroll-container">
         <div class="scroll-arrow left" onclick="scrollTeams(-1)">‹</div>
         <div class="scroll-arrow right" onclick="scrollTeams(1)">›</div>
@@ -247,13 +247,13 @@
     </div>
 
     <div class="parchment-card">
-      <div class="card-eyebrow">📜 &nbsp; The Archivist's Note</div>
+      <div class="card-eyebrow"> &nbsp The Archivist's Note</div>
       <div class="card-inner">
         <p class="card-text">
-          To really get to the bottom of this, you have to go further than this room.
-          <em>Enter the chambers on October 1st</em> — that's where the rest of the files and recordings are kept.
+          A piece of the journal has been left behind for you
+          <em>Enter the chambers on October 1st and retrieve the remaining files</em>
         </p>
-        <img class="journal-thumb" src="jc1.png" onclick="openJournal(this)"/>
+        <img class="journal-thumb" src="jc.png" onclick="openJournal(this)"/>
       </div>
     </div>
     <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -279,7 +279,7 @@
         <div style="height:32px;"></div>
         <div class="keypad-label">Enter the decoded word</div>
         <div class="keypad-slots" id="keypad-slots"></div>
-        <button class="unlock-btn" id="unlock-btn" onclick="checkAnswer(); playSound('click-sound')">Unlock The Door</button>
+        <button class="unlock-btn" id="unlock-btn" onclick="checkAnswer(); playSound('click-sound')">Unlock the Chamber</button>
         <div class="keypad-error" id="keypad-error"></div>
       </div>
     </div>
@@ -287,11 +287,11 @@
     <div class="steps">
       <div class="step">
         <span class="step-num">01 //</span>
-        <div><div class="step-title">Find The Shift</div><div class="step-desc">Drag the outer wheel around until the cipher text lines up into a real word.</div></div>
+        <div><div class="step-title">Find the Shift</div><div class="step-desc">Drag the outer wheel around until the cipher wheel lines to Shift 13</div></div>
       </div>
       <div class="step">
         <span class="step-num">02 //</span>
-        <div><div class="step-title">Enter The Word</div><div class="step-desc">Use the ▲ ▼ slots to spell out the decoded word, then hit <code>Unlock The Door</code>.</div></div>
+        <div><div class="step-title">Enter the Word</div><div class="step-desc">Using the arrow slots you must spell out the decoded word, then hit Unlock to check</div></div>
       </div>
     </div>
   </div>
@@ -310,8 +310,8 @@
 <div id="win-screen">
   <video class="win-spark-video" muted autoplay loop playsinline webkit-playsinline="true"><source src="forest.mp4" type="video/mp4"></video>
   <div class="win-title" id="win-title">ARCHAIC</div>
-  <div class="win-house" id="win-house-name">— has cracked the cipher!</div>
-  <div class="win-sub">The door gives way. <em>Well played.</em></div>
+  <div class="win-house" id="win-house-name">- has cracked the cipher!</div>
+  <div class="win-sub">The door gives way to the ones who have survived <em>Well played, return on the 1st</em></div>
 </div>
 
 <script>
