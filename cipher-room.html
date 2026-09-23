@@ -56,13 +56,23 @@
   .chamber-header{text-align:center; margin-bottom:40px;}
   .chamber-title{font-family:'Cinzel',serif; font-size:clamp(24px,5vw,44px); font-weight:700; color:var(--parchment); letter-spacing:4px;}
 
-  .section-panel{width:100%; border:1px solid rgba(212,132,42,0.25); background:rgba(20,10,4,0.95); position:relative; margin-bottom:32px;}
+  .section-panel{width:100%; 
+                 border:1px solid rgba(212,132,42,0.25); background:rgba(20,10,4,0.95); position:relative; margin-bottom:32px;}
   .section-panel::before{content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(to right,transparent,var(--amber),transparent);}
   .section-header{padding:12px 20px; border-bottom:1px solid rgba(212,132,42,0.1); display:flex; align-items:center; justify-content:space-between;}
   .section-title{font-family:'Cinzel',serif; font-size:11px; letter-spacing:4px; color:var(--amber); text-transform:uppercase;}
   .section-body{padding:28px;}
-  .cipher-text{font-family:'Share Tech Mono',monospace; font-size:26px; color:rgba(212,132,42,0.9); letter-spacing:8px; text-align:center; border:1px solid rgba(212,132,42,0.1); padding:24px; background:rgba(0,0,0,0.4);}
 
+  .cipher-text{
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(20px,6vw,26px); /*i need it to shrink for phoneslol*/
+  color:rgba(212,132,42,0.9);
+  display:flex; justify-content:center;
+  gap:clamp(10px,4vw,28px);
+  border:1px solid rgba(212,132,42,0.1);
+  padding:24px 12px;
+  background:rgba(0,0,0,0.4);
+}
   .wheel-area{display:flex; flex-direction:column; align-items:center; gap:16px;}
   .cipher-wheel-container{position:relative; width:320px; height: 320px; margin: 0 auto;}
   .wheel-svg{position: absolute; inset: 0; width:100%; height:100%;}
@@ -294,7 +304,7 @@
         <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--amber-dim);letter-spacing:2px;">ROTATE TO DECODE</span>
       </div>
       <div class="section-body">
-        <div class="cipher-text">N &nbsp; E &nbsp; P &nbsp; U &nbsp; N &nbsp; V &nbsp; P</div>
+        <div class="cipher-text"><span>N</span><span>E</span><span>P</span><span>U</span><span>N</span><span>V</span><span>P</span></div>
         <div style="height:32px;"></div>
         <div class="wheel-area">
           <div class="cipher-wheel-container">
