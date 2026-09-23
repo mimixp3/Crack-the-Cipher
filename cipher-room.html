@@ -104,9 +104,12 @@
   .win-house {font-family:'Cinzel',serif; font-size:22px; letter-spacing:3px; color:var(--gold); margin-bottom:32px; z-index:1;}
   .win-sub {font-size:20px; color:var(--gold); max-width:600px; z-index:1;}
 
-  .audio-toggle {position:fixed; top:30px; right: 30px; font-size: 24px; color: var(--gold); opacity: 0.6; cursor: pointer; transition: opacity 0.3s; z-index: 1000;}
-  .audio-toggle:hover {opacity: 1;}
-  .audio-toggle.muted {opacity: 0.3;}
+  .audio-toggle { position: fixed; top: 30px; right: 30px; width: 24px; height: 24px; opacity: 0.6; cursor: pointer; transition: opacity 0.3s; z-index: 1000; }
+
+  .audio-toggle img {
+  width: 100%; height: 100%;
+  filter: brightness(0) saturate(100%) invert(73%) sepia(18%) saturate(1015%) hue-rotate(359deg) brightness(95%) contrast(85%);
+  }
 
   .back-link{
     font-family: 'Cinzel',serif; font-size: 14px; letter-spacing: 3px; font-weight: bold;
@@ -180,8 +183,9 @@
 
 <audio id="click-sound" preload="auto"><source src="clicks.mp3" type="audio/mpeg"></audio>
 <audio id="hover-sound" preload="auto"><source src="hover.mp3" type="audio/mpeg"></audio>
-<div class="audio-toggle muted" id="audio-toggle" onclick="toggleAudio()">🔇</div>
-
+<div class="audio-toggle muted" id="audio-toggle" onclick="toggleAudio()">
+  <img src="icon.png" alt="sound" id="audio-icon">
+</div>
 
 
 <div id="main">
@@ -429,8 +433,9 @@
     currentRotation = ((currentRotation+curr-startAngle) % 360+360) % 360;
     outerLettersEl.style.transform = `rotate(${currentRotation}deg)`;
     startAngle = curr;
+    playGear();
     const shift = Math.round(currentRotation / (360/26)) % 26;
-    shiftDisplay.textContent = `SHIFT:${shift}  |  A → ${alphabet[shift]}`;
+    shiftDisplay.textContent = `SHIFT: ${shift}  |  A → ${alphabet[shift]}`;
   });
   document.addEventListener('touchmove',e=>{
     if (!isDragging) return;
@@ -438,14 +443,26 @@
     currentRotation = ((currentRotation+curr-startAngle) % 360+360) % 360;
     outerLettersEl.style.transform = `rotate(${currentRotation}deg)`;
     startAngle = curr;
-    const shift = Math.round(currentRotation/(360/26)) % 26;
-    shiftDisplay.textContent = `SHIFT:${shift}|A → ${alphabet[shift]}`;
-  },{passive:false});
+    playGear();
+    const shift = Math.round(currentRotation / (360/26)) % 26;
+    shiftDisplay.textContent = `SHIFT: ${shift}  |  A → ${alphabet[shift]}`;
+  });{passive:false});
   document.addEventListener('mouseup',()=> isDragging = false);
   document.addEventListener('touchend',()=> isDragging = false);
 
 
 
+  //GEAR STUFF YKWIM BRUV
+  function playGear() {
+    if (!window._wheelAudio) window._wheelAudio = new Audio('gear.mp3');
+    if (!window._lastClick || Date.now() - window._lastClick > 2000) {
+      window._wheelAudio.currentTime = 4;
+      window._wheelAudio.play();
+      setTimeout(() => window._wheelAudio.pause(), 2000);
+      window._lastClick = Date.now();
+    }
+  }
+  
   //KEYPAD+ THE ANSWERW
   const ANSWER = 'ARCHAIC';
   const keySlots = [];
@@ -474,7 +491,7 @@
       keySlots.forEach(s=> s.el.classList.add('correct'));
       setTimeout(showWinScreen,900);
     } else{
-      errEl.textContent = '✗ Not it. Try again.';
+      errEl.textContent = 'Thats Not it. You suck at this.. are you even trying?';
       setTimeout(()=> errEl.textContent = '',2500);
     }
   }
@@ -497,25 +514,24 @@
 
   //SOUND TOGGLE
   const fireplaceVideo=document.getElementById('castle-video');
-  let videoMuted=true;
-  function toggleAudio(){
-    const toggle=document.getElementById('audio-toggle');
-    if (videoMuted){fireplaceVideo.muted=false; toggle.classList.remove('muted'); toggle.textContent='🔊'; videoMuted=false; }
-    else{fireplaceVideo.muted=true; toggle.classList.add('muted'); toggle.textContent = '🔇'; videoMuted = true; }
-  }
-  fireplaceVideo.play().catch(()=>{fireplaceVideo.muted = true; fireplaceVideo.play().catch(()=>{});});
+let videoMuted=true;
+function toggleAudio(){
+  const toggle=document.getElementById('audio-toggle');
+  if (videoMuted){fireplaceVideo.muted=false; toggle.classList.remove('muted'); videoMuted=false; }
+  else{fireplaceVideo.muted=true; toggle.classList.add('muted'); videoMuted = true; }
+}
+fireplaceVideo.play().catch(()=>{fireplaceVideo.muted = true; fireplaceVideo.play().catch(()=>{});});
 
   //browsers block unmuted autoplay before anythinj
   let audioUnlocked=false;
-  function unlockAudioOnce(e){
-    if (audioUnlocked) return;
-    if (e && e.target && e.target.closest && e.target.closest('#audio-toggle')) return; //toggle button handles its own state
-    audioUnlocked=true;
-    fireplaceVideo.muted=false;
-    videoMuted=false;
-    document.getElementById('audio-toggle').classList.remove('muted');
-    document.getElementById('audio-toggle').textContent='🔊';
-  }
+function unlockAudioOnce(e){
+  if (audioUnlocked) return;
+  if (e && e.target && e.target.closest && e.target.closest('#audio-toggle')) return; //toggle button handles its own state
+  audioUnlocked=true;
+  fireplaceVideo.muted=false;
+  videoMuted=false;
+  document.getElementById('audio-toggle').classList.remove('muted');
+}
   window.addEventListener('click',unlockAudioOnce,{once:true});
   window.addEventListener('touchstart',unlockAudioOnce,{once:true});
 </script>
