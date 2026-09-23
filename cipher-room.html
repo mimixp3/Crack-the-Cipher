@@ -545,12 +545,12 @@
   function primeGear(){
     if (gearPrimed) return;
     gearPrimed = true;
-    gearAudio.volume = 0;
+    gearAudio.muted = true; //muted works on phones
     gearAudio.play().then(()=>{
       gearAudio.pause();
       gearAudio.currentTime = 0;
-      gearAudio.volume = 1;
-    }).catch(()=>{ gearPrimed = false; gearAudio.volume = 1; });
+      gearAudio.muted = false;
+    }).catch(()=>{ gearPrimed = false; gearAudio.muted = false; });
   }
   window.addEventListener('click', primeGear, {once:true});
   window.addEventListener('touchend', primeGear, {once:true});
