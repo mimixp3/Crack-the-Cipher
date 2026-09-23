@@ -91,6 +91,7 @@
   .step-desc{font-size: 18px; color: var(--ash); line-height: 1.6;}
 
   @keyframes fadeIn{from{opacity: 0;} to{opacity: 1;}}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);}}
 
   #encounter-screen{position: fixed; inset: 0; background: black; z-index: 10000; display: none; align-items: center; justify-content: center;}
   #encounter-video{width: 100%; height: 100%; object-fit: cover;}
@@ -124,7 +125,7 @@
   .parchment-card{
     width:100%; border:1px solid rgba(201,168,76,0.2);
     background:rgba(15,12,8,0.9); padding:32px 36px;
-    position:relative; margin-bottom:32px;
+    position:relative; margin-bottom:32px; animation:fadeUp 1.2s ease both;
   }
   .parchment-card::before{
     content:''; position:absolute; top:0; left:0; right:0; height:1px;
@@ -132,21 +133,24 @@
   }
   .card-eyebrow{
     font-family:'Cinzel', serif; font-size:16px; letter-spacing:4px;
-    color:var(--gold); text-transform:uppercase; margin-bottom:16px;
-    display:flex; align-items:center; gap:10px;
+    color:var(--amber); text-transform:uppercase; margin-bottom:16px;
   }
-  .card-eyebrow::after{content:''; flex:1; height:1px; background:rgba(201,168,76,0.15);}
   .card-inner{display:flex; gap:24px; align-items:flex-start;}
-  .card-text{font-family:'EB Garamond', serif; font-size:19px; line-height:1.95; color:var(--ash);}
+  .card-text{font-family:'EB Garamond', serif; font-size:20px; line-height:1.95; color:var(--ash);}
   .card-text em{color:var(--gold);}
   .journal-thumb{
-    width:80px; flex-shrink:0; object-fit:cover; cursor:pointer; border:none;
-    filter:sepia(0.3); animation:floatThumb 4s ease-in-out infinite;
+    width:72px; height:90px; flex-shrink:0; object-fit:cover; cursor:pointer;
+    border:1px solid rgba(201,168,76,0.3); opacity:0.85; transform:rotate(2deg);
+    filter:sepia(0.3);
     box-shadow:0 0 18px rgba(201,168,76,0.35), 0 0 40px rgba(201,168,76,0.15);
-    transition:box-shadow 0.3s;
- }
-  .journal-thumb:hover{box-shadow:0 0 28px rgba(201,168,76,0.7), 0 0 60px rgba(201,168,76,0.3);}
-  @keyframes floatThumb{0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);}}
+    transition:all 0.2s; animation:floatThumb 4s ease-in-out infinite;
+  }
+  .journal-thumb:hover{
+    animation:none; opacity:1; transform:rotate(0deg) scale(1.05); border-color:var(--gold);
+    box-shadow:0 0 28px rgba(201,168,76,0.7), 0 0 60px rgba(201,168,76,0.3);
+  }
+
+  @keyframes floatThumb{0%,100%{transform:translateY(0) rotate(2deg);} 50%{transform:translateY(-6px) rotate(2deg);}}
 
   .lightbox{
     display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999;
@@ -156,6 +160,23 @@
   .lightbox img{max-width:88vw; max-height:88vh; filter:sepia(0.2);}
 
   .win-spark-video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.8;}
+
+  #parchment-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 99998; display: none; align-items: center; justify-content: center; }
+  #parchment-overlay.show { display: flex; }
+  #parchment-note { background: #1a1408; border: 1px solid rgba(201,168,76,0.4); max-width: 520px; width: 90%; padding: 48px 44px; position: relative; text-align: center; transform: translateY(40px) rotate(-1deg); opacity: 0; transition: all 0.6s cubic-bezier(0.16,1,0.3,1); }
+  #parchment-overlay.show #parchment-note { transform: translateY(0) rotate(-0.5deg); opacity: 1; }
+  #parchment-note::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
+  #parchment-note::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold-dim), transparent); }
+  .note-eyebrow { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 5px; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 24px; }
+  .note-text { font-family: 'EB Garamond', serif; font-size: 18px; line-height: 1.9; color: #c8b898; margin-bottom: 28px; }
+  .note-text em { color: var(--gold); }
+  .note-close { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 3px; color: var(--amber); background: none; border: 1px solid rgba(212,132,42,0.3); padding: 10px 28px; cursor: pointer; transition: all 0.2s; }
+  .note-close:hover { border-color: var(--amber); color: var(--parchment); }
+  .note-corner { position: absolute; font-size: 14px; color: var(--gold-dim); }
+  .note-corner.tl { top: 10px; left: 14px; }
+  .note-corner.tr { top: 10px; right: 14px; }
+  .note-corner.bl { bottom: 10px; left: 14px; }
+  .note-corner.br { bottom: 10px; right: 14px; }
 
   @media (max-width:420px){
     .cipher-wheel-container{transform:scale(0.82); transform-origin:center top; margin-bottom:-50px;}
@@ -251,7 +272,7 @@
     </div>
 
     <div class="parchment-card">
-      <div class="card-eyebrow"> &nbsp The Archivist's Note</div>
+      <div class="card-eyebrow">📜 &nbsp; The Archivist's Note</div>
       <div class="card-inner">
         <p class="card-text">
           A piece of the journal has been left behind for you
@@ -309,6 +330,21 @@
 </div>
 
 
+
+<div id="parchment-overlay">
+  <div id="parchment-note">
+    <span class="note-corner tl">+</span>
+    <span class="note-corner tr">+</span>
+    <span class="note-corner bl">+</span>
+    <span class="note-corner br">+</span>
+    <div class="note-eyebrow">// The Cipher Room //</div>
+    <p class="note-text">
+      This is important to <em>unlock the full chamber</em>.<br><br>
+      Crack the cipher on the wall, then come back on the 1st.
+    </p>
+    <button class="note-close" onclick="closeNote(); playSound('click-sound')">CRACK THE CIPHER</button>
+  </div>
+</div>
 
 <!--WINNERS YAYYYY-->
 <div id="win-screen">
@@ -374,9 +410,14 @@
       document.getElementById('castle-video').style.display = 'none';
       document.getElementById('chamber-page').classList.add('active');
       document.getElementById('player-badge').textContent = `TEAM // ${selectedSpecialty.toUpperCase()}`;
+      document.getElementById('parchment-overlay').classList.add('show');
     });
   }
 
+
+  function closeNote(){
+    document.getElementById('parchment-overlay').classList.remove('show');
+  }
 
   //CIPHER WHEEL
   const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -446,7 +487,7 @@
     playGear();
     const shift = Math.round(currentRotation / (360/26)) % 26;
     shiftDisplay.textContent = `SHIFT: ${shift}  |  A → ${alphabet[shift]}`;
-  });{passive:false});
+  },{passive:false});
   document.addEventListener('mouseup',()=> isDragging = false);
   document.addEventListener('touchend',()=> isDragging = false);
 
@@ -504,7 +545,7 @@
 
   //JOURNAL THING
   function openJournal(img){
-    playSound('click-sound');
+    new Audio('journal.mp3').play().catch(()=>{});
     document.getElementById('lightbox-img').src=img.src;
     document.getElementById('lightbox').classList.add('open');
   }
