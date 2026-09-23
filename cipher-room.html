@@ -537,14 +537,31 @@
 
 
   //GEAR STUFF YKWIM BRUV
-  function playGear() {
-    if (!window._wheelAudio) window._wheelAudio = new Audio('gear.mp3');
-    if (!window._lastClick || Date.now() - window._lastClick > 2000) {
-      window._wheelAudio.currentTime = 4;
-      window._wheelAudio.play();
-      setTimeout(() => window._wheelAudio.pause(), 2000);
-      window._lastClick = Date.now();
-    }
+  const gearAudio = new Audio('gear.mp3');
+  gearAudio.preload = 'auto';
+  gearAudio.load();
+  let gearPrimed = false;
+
+  function primeGear(){
+    if (gearPrimed) return;
+    gearPrimed = true;
+    gearAudio.volume = 0;
+    gearAudio.play().then(()=>{
+      gearAudio.pause();
+      gearAudio.currentTime = 0;
+      gearAudio.volume = 1;
+    }).catch(()=>{ gearPrimed = false; gearAudio.volume = 1; });
+  }
+  window.addEventListener('click', primeGear, {once:true});
+  window.addEventListener('touchend', primeGear, {once:true});
+  
+  function playGear(){
+    if (window._lastClick && Date.now() - window._lastClick < 2000) return;
+    window._lastClick = Date.now();
+    try { gearAudio.currentTime = 4; } catch(e){}
+    gearAudio.play().catch(()=>{});
+    clearTimeout(window._gearStop);
+    window._gearStop = setTimeout(()=> gearAudio.pause(), 2000);
   }
   
   //KEYPAD+ THE ANSWERW
