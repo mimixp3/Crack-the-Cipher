@@ -420,7 +420,9 @@
     playSound('click-sound');
     playEncounterCutscene(()=>{
       document.getElementById('landing-page').style.display = 'none';
-      document.getElementById('castle-video').style.display = 'none';
+      const cv = document.getElementById('castle-video');
+      cv.style.opacity = '0';
+      cv.play().catch(()=>{});
       document.getElementById('chamber-page').classList.add('active');
       document.getElementById('player-badge').textContent = `TEAM // ${selectedSpecialty.toUpperCase()}`;
       document.getElementById('parchment-overlay').classList.add('show');
