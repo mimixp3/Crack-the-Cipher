@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Cipher Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --black:#0a0a0a; --parchment:#f5f0e8; --copper:#d4842a;
+    --gold:#c9a84c; --gold-dim:#7a6230; --ash:#888880; --royal-purple:#6b4ba1;
+    --amber:#d4842a; --amber-dim:#7a4a10; --blue:#4ba8ff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--black); color:var(--parchment); font-family:'EB Garamond', serif; min-height:100vh;}
+
+  .castle-bg{position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-5; opacity:0.7;}
+  body::after{content:''; position:fixed; inset:0; background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%); pointer-events:none; z-index:1;}
+
+  #main{position:relative; z-index:2;}
+
+  #landing-page{min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:60px 20px;}
+  .title{font-family:'Cinzel Decorative',serif; font-size:clamp(40px,8vw,80px); font-weight:bold; letter-spacing:8px; background:linear-gradient(135deg,var(--copper),var(--royal-purple),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-align:center; margin-bottom: 8px;}
+  .subtitle{font-family: 'Cinzel',serif; font-size: 14.5px; font-weight: bold; letter-spacing:5px; color:var(--gold); text-align:center; margin-bottom:25px;}
+  .welcome{max-width:860px; text-align:center; margin:15px auto; font-size:22px; line-height:1.8; color:var(--parchment);}
+  .welcome em{color:var(--gold);}
+
+  .teams-section{width:100%; max-width:900px; margin:40px auto;}
+  .teams-title{font-family:'Cinzel',serif; font-size:14px; letter-spacing:5px; font-weight:bold; color:var(--gold); text-align:center; margin-bottom:24px;}
+  .scroll-container{position:relative; overflow:hidden; padding:0 60px;}
+  .scroll-arrow{position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; background:rgba(107,73,167,0.3); border:1px solid rgba(116,83,173,0.5); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5; font-size:20px; color:var(--gold);}
+  .scroll-arrow:hover{background:rgba(107,75,161,0.6); border-color:var(--gold);}
+  .scroll-arrow.left{left:10px;} .scroll-arrow.right{right:10px;}
+  .teams-scroll{display:flex; gap:30px; overflow-x:auto; scroll-behavior:smooth; padding:20px 0; scrollbar-width:none;}
+  .teams-scroll::-webkit-scrollbar{display:none;}
+  .team-card{min-width:160px; flex-shrink:0; border:1px solid rgba(107,75,161,0.2); background:rgba(0,0,0,0.5); padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.3s;}
+  .team-card:hover {border-color:var(--royal-purple); background:rgba(107,75,161,0.08); transform:translateY(-4px);}
+  .team-card.selected {border-color:var(--gold); background:rgba(201,168,76,0.08); box-shadow: 0 0 30px rgba(201,168,76,0.3);}
+  .team-img {width: 100px; height: 100px; margin: 0 auto 16px; border: 2px solid rgba(107,75,161,0.4); border-radius: 50%; overflow: hidden;}
+  .team-card.selected .team-img {border-color: var(--gold);}
+  .team-img img{width: 100%; height: 100%; object-fit: cover;}
+  .team-name{font-family: 'Cinzel',serif; font-size: 16px; letter-spacing: 3px; color: var(--parchment); margin-bottom: 4px;}
+
+  .enter-section{text-align: center; margin: 32px 0 2px;}
+  .enter-btn{font-family:'Cinzel',serif; font-size:14px; font-weight:bold; letter-spacing:4px; padding:16px 48px; border:2px solid var(--copper); background: rgba(212,132,42,0.1); color: var(--copper); cursor: pointer;}
+  .enter-btn:hover{border-color: var(--gold); color: var(--gold); box-shadow: 0 0 30px rgba(201,168,76,0.3);}
+  .enter-btn:disabled{opacity: 0.4; cursor: not-allowed;}
+
+
+  #chamber-page{display: none; max-width: 900px; margin:0 auto; padding:60px 20px 80px;}
+  #chamber-page.active{display:block; animation:fadeIn 0.8s ease both;}
+  .top-bar{width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:48px;}
+  .badge-text{font-family:'Cinzel',serif; font-size:14px; letter-spacing:3px; font-weight:bold; color:var(--gold-dim); text-transform:uppercase;}
+  .challenge-badge{font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--gold); letter-spacing:2px; text-shadow:0 0 10px rgba(201,168,76,0.4);}
+  .chamber-header{text-align:center; margin-bottom:40px;}
+  .chamber-title{font-family:'Cinzel',serif; font-size:clamp(24px,5vw,44px); font-weight:700; color:var(--parchment); letter-spacing:4px;}
+
+  .section-panel{width:100%; border:1px solid rgba(212,132,42,0.25); background:rgba(20,10,4,0.95); position:relative; margin-bottom:32px;}
+  .section-panel::before{content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(to right,transparent,var(--amber),transparent);}
+  .section-header{padding:12px 20px; border-bottom:1px solid rgba(212,132,42,0.1); display:flex; align-items:center; justify-content:space-between;}
+  .section-title{font-family:'Cinzel',serif; font-size:11px; letter-spacing:4px; color:var(--amber); text-transform:uppercase;}
+  .section-body{padding:28px;}
+  .cipher-text{font-family:'Share Tech Mono',monospace; font-size:26px; color:rgba(212,132,42,0.9); letter-spacing:8px; text-align:center; border:1px solid rgba(212,132,42,0.1); padding:24px; background:rgba(0,0,0,0.4);}
+
+  .wheel-area{display:flex; flex-direction:column; align-items:center; gap:16px;}
+  .cipher-wheel-container{position:relative; width:320px; height: 320px; margin: 0 auto;}
+  .wheel-svg{position: absolute; inset: 0; width:100%; height:100%;}
+  .outer-letters-container{position:absolute; inset:0; cursor:grab; user-select:none;}
+  .outer-letters-container:active{cursor:grabbing;}
+  .letter{position:absolute; font-family:'Share Tech Mono',monospace; font-size:13px; font-weight:bold; transform-origin:center; pointer-events:none;}
+  .outer-letter{color:var(--amber); text-shadow:0 0 8px rgba(212,132,42,0.5);}
+  .inner-letter{color:var(--gold); text-shadow:0 0 8px rgba(201,168,76,0.5);}
+  .shift-display{font-family:'Share Tech Mono', monospace; font-size:13px; color:var(--gold); letter-spacing:3px; text-align:center;}
+
+  .keypad-label{font-family:'Cinzel', serif; font-size:10px; letter-spacing:4px; color:var(--gold-dim); text-transform:uppercase; text-align:center; margin-bottom:20px;}
+  .keypad-slots{display:flex; gap:10px; justify-content:center; margin-bottom:20px; flex-wrap:wrap;}
+  .key-slot{display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .slot-btn{width:40px; height:26px; background:rgba(212,132,42,0.08); border:1px solid rgba(212,132,42,0.25); color:var(--amber); font-family:'Share Tech Mono', monospace; font-size:14px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center;}
+  .slot-btn:hover{background:rgba(212,132,42,0.2); border-color:var(--amber);}
+  .slot-letter{width:48px; height:56px; background:rgba(0,0,0,0.6); border:1px solid rgba(212,132,42,0.3); display:flex; align-items:center; justify-content:center; font-family:'Cinzel', serif; font-size:22px; color:var(--parchment); letter-spacing:2px; transition:all 0.2s;}
+  .slot-letter.correct{border-color:var(--blue); color:var(--blue); box-shadow:0 0 12px rgba(0,255,157,0.3);}
+  .unlock-btn{font-family:'Cinzel', serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; padding:12px 32px; background:rgba(212,132,42,0.1); border:1px solid rgba(212,132,42,0.4); color:var(--amber); cursor:pointer; transition:all 0.2s; display:block; margin:0 auto;}
+  .unlock-btn:hover {background:rgba(212,132,42,0.2); border-color:var(--amber); color:var(--parchment);}
+  .unlock-btn.success {border-color:var(--blue); color:var(--blue); background:rgba(0,255,157,0.08); box-shadow:0 0 20px rgba(0,255,157,0.2);}
+  .keypad-error {font-family:'Share Tech Mono', monospace; font-size:11px; color:#ff4444; letter-spacing:2px; text-align:center; margin-top:12px; min-height:20px;}
+
+  .steps{width:100%; display:flex; flex-direction:column; gap:12px; margin-bottom:8px;}
+  .step{display:flex; gap:16px; align-items:flex-start; padding:16px 20px; border:1px solid rgba(201,168,76,0.08); background:rgba(10,10,10,0.6);}
+  .step-num{font-family:'Share Tech Mono', monospace; font-size:11px; color:var(--amber); letter-spacing:2px; flex-shrink:0;}
+  .step-title{font-family:'Cinzel', serif; font-size: 15px; letter-spacing: 2px; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;}
+  .step-desc{font-size: 18px; color: var(--ash); line-height: 1.6;}
+
+  @keyframes fadeIn{from{opacity: 0;} to{opacity: 1;}}
+
+  #encounter-screen{position: fixed; inset: 0; background: black; z-index: 10000; display: none; align-items: center; justify-content: center;}
+  #encounter-video{width: 100%; height: 100%; object-fit: cover;}
+
+  #escape-screen{position: fixed; inset: 0; background: black; z-index: 10000; display: none; align-items: center; justify-content: center;}
+  #escape-video{width: 100%; height: 100%; object-fit:cover;}
+
+  #win-screen{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:40px;}
+  #win-screen.show{display:flex;}
+  .win-title {font-family:'Cinzel Decorative', serif; font-size:clamp(48px,10vw,96px); color:var(--gold); font-weight:bold; text-shadow:0 0 40px rgba(201,168,76,0.8); margin-bottom:16px; z-index:1;}
+  .win-house {font-family:'Cinzel',serif; font-size:22px; letter-spacing:3px; color:var(--gold); margin-bottom:32px; z-index:1;}
+  .win-sub {font-size:20px; color:var(--gold); max-width:600px; z-index:1;}
+
+  .audio-toggle {position:fixed; top:30px; right: 30px; font-size: 24px; color: var(--gold); opacity: 0.6; cursor: pointer; transition: opacity 0.3s; z-index: 1000;}
+  .audio-toggle:hover {opacity: 1;}
+  .audio-toggle.muted {opacity: 0.3;}
+
+  .back-link{
+    font-family: 'Cinzel',serif; font-size: 14px; letter-spacing: 3px; font-weight: bold;
+    color:var(--gold-dim); text-decoration:none; text-transform:uppercase; transition:color 0.3s;
+  }
+  .back-link:hover{color:var(--gold); }
+
+
+
+
+
+  .parchment-card{
+    width:100%; border:1px solid rgba(201,168,76,0.2);
+    background:rgba(15,12,8,0.9); padding:32px 36px;
+    position:relative; margin-bottom:32px;
+  }
+  .parchment-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background:linear-gradient(to right,transparent, var(--gold), transparent);
+  }
+  .card-eyebrow{
+    font-family:'Cinzel', serif; font-size:16px; letter-spacing:4px;
+    color:var(--gold); text-transform:uppercase; margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .card-eyebrow::after{content:''; flex:1; height:1px; background:rgba(201,168,76,0.15);}
+  .card-inner{display:flex; gap:24px; align-items:flex-start;}
+  .card-text{font-family:'EB Garamond', serif; font-size:19px; line-height:1.95; color:var(--ash);}
+  .card-text em{color:var(--gold);}
+  .journal-thumb{
+    width:80px; flex-shrink:0; object-fit:cover; cursor:pointer; border:none;
+    filter:sepia(0.3); animation:floatThumb 4s ease-in-out infinite;
+    box-shadow:0 0 18px rgba(201,168,76,0.35), 0 0 40px rgba(201,168,76,0.15);
+    transition:box-shadow 0.3s;
+ }
+  .journal-thumb:hover{box-shadow:0 0 28px rgba(201,168,76,0.7), 0 0 60px rgba(201,168,76,0.3);}
+  @keyframes floatThumb{0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);}}
+
+  .lightbox{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999;
+    align-items:center; justify-content:center; cursor:pointer;
+ }
+  .lightbox.open{display:flex; animation:fadeIn 0.2s ease both;}
+  .lightbox img{max-width:88vw; max-height:88vh; filter:sepia(0.2);}
+
+  .win-spark-video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.8;}
+
+  @media (max-width:420px){
+    .cipher-wheel-container{transform:scale(0.82); transform-origin:center top; margin-bottom:-50px;}
+    #landing-page, #chamber-page{padding-left:14px; padding-right:14px;}
+    .welcome{font-size:18px;}
+    .team-card{min-width:128px; padding:18px 10px;}
+    .team-img{width:76px; height:76px;}
+    .slot-btn{width:34px; height:30px;}
+    .slot-letter{width:38px; height:46px; font-size:18px;}
+    .audio-toggle{top:16px; right:16px; font-size:20px;}
+    .win-title{font-size:clamp(36px, 12vw, 72px);}
+  }
+</style>
+</head>
+<body>
+
+
+
+
+
+  <video class="castle-bg" id="castle-video" autoplay loop muted playsinline webkit-playsinline="true">
+  <source src="castle.mp4" type="video/mp4">
+</video>
+
+
+<audio id="click-sound" preload="auto"><source src="clicks.mp3" type="audio/mpeg"></audio>
+<audio id="hover-sound" preload="auto"><source src="hover.mp3" type="audio/mpeg"></audio>
+<div class="audio-toggle muted" id="audio-toggle" onclick="toggleAudio()">🔇</div>
+
+
+
+<div id="main">
+  <div id="landing-page">
+    <h1 class="title">THE CIPHER ROOM</h1>
+    <div class="subtitle">ONE DOOR. ONE CHANCE.</div>
+    <div class="welcome">
+      The room is sealed. There's one message scratched into the wall, and it isn't in a language anyone speaks anymore.
+      <br><em>Pick what you bring in with you, then get to work.</em>
+    </div>
+
+    <div class="teams-section">
+      <div class="teams-title">CHOOSE YOUR SPECIALTY</div>
+      <div class="scroll-container">
+        <div class="scroll-arrow left" onclick="scrollTeams(-1)">‹</div>
+        <div class="scroll-arrow right" onclick="scrollTeams(1)">›</div>
+        <div class="teams-scroll" id="teams-scroll">
+          <div class="team-card" onclick="selectSpecialty('Aegis', this)" onmouseenter="playSound('hover-sound')">
+            <div class="team-img"><img src="aegis.png" alt="Aegis"></div>
+            <div class="team-name">AEGIS</div>
+          </div>
+          <div class="team-card" onclick="selectSpecialty('Elixir',this)" onmouseenter="playSound('hover-sound')">
+            <div class="team-img"><img src="potion.png" alt="Elixir"></div>
+            <div class="team-name">ELIXIR</div>
+          </div>
+          <div class="team-card" onclick="selectSpecialty('Hippogriff',this)" onmouseenter="playSound('hover-sound')">
+            <div class="team-img"><img src="hippogriff.png" alt="Hippogriff"></div>
+            <div class="team-name">HIPPOGRIFF</div>
+          </div>
+          <div class="team-card" onclick="selectSpecialty('Compass',this)" onmouseenter="playSound('hover-sound')">
+            <div class="team-img"><img src="compass.png" alt="Compass"></div>
+            <div class="team-name">COMPASS</div>
+          </div>
+          <div class="team-card" onclick="selectSpecialty('Citrine',this)" onmouseenter="playSound('hover-sound')">
+            <div class="team-img"><img src="citrine.png" alt="Citrine"></div>
+            <div class="team-name">CITRINE</div>
+          </div>
+          <div class="team-card" onclick="selectSpecialty('Willow',this)" onmouseenter="playSound('hover-sound')">
+            <div class="team-img"><img src="willow.png" alt="Willow"></div>
+            <div class="team-name">WILLOW</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="enter-section">
+      <button class="enter-btn" id="enter-btn" onclick="enterChamber()" disabled>ENTER THE ROOM</button>
+    </div>
+  </div>
+
+
+
+  <div id="chamber-page">
+    <div class="top-bar">
+      <a href="https://mimixp3.github.io/Colab-Chambers/chamber-hub.html" class="back-link">← Archives</a>
+      <span class="badge-text" id="player-badge">— //  —</span>
+      <span class="challenge-badge">SEALED_ROOM</span>
+    </div>
+    <div class="chamber-header">
+      <h1 class="chamber-title">THE CIPHER ROOM</h1>
+    </div>
+
+    <div class="parchment-card">
+      <div class="card-eyebrow">📜 &nbsp; The Archivist's Note</div>
+      <div class="card-inner">
+        <p class="card-text">
+          To really get to the bottom of this, you have to go further than this room.
+          <em>Enter the chambers on October 1st</em> — that's where the rest of the files and recordings are kept.
+        </p>
+        <img class="journal-thumb" src="jc1.png" onclick="openJournal(this)"/>
+      </div>
+    </div>
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <img id="lightbox-img" src="" alt="journal"/>
+    </div>
+
+    <div class="section-panel">
+      <div class="section-header">
+        <span class="section-title">Caesar Cipher</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--amber-dim);letter-spacing:2px;">ROTATE TO DECODE</span>
+      </div>
+      <div class="section-body">
+        <div class="cipher-text">N &nbsp; E &nbsp; P &nbsp; U &nbsp; N &nbsp; V &nbsp; P</div>
+        <div style="height:32px;"></div>
+        <div class="wheel-area">
+          <div class="cipher-wheel-container">
+            <svg class="wheel-svg" id="wheel-svg" viewBox="0 0 320 320"></svg>
+            <div class="outer-letters-container" id="outer-letters"></div>
+            <div id="inner-letters" style="position:absolute;inset:0;pointer-events:none;"></div>
+          </div>
+          <div class="shift-display" id="shift-display">SHIFT:0 &nbsp;|&nbsp; A :A</div>
+        </div>
+        <div style="height:32px;"></div>
+        <div class="keypad-label">Enter the decoded word</div>
+        <div class="keypad-slots" id="keypad-slots"></div>
+        <button class="unlock-btn" id="unlock-btn" onclick="checkAnswer(); playSound('click-sound')">Unlock The Door</button>
+        <div class="keypad-error" id="keypad-error"></div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01 //</span>
+        <div><div class="step-title">Find The Shift</div><div class="step-desc">Drag the outer wheel around until the cipher text lines up into a real word.</div></div>
+      </div>
+      <div class="step">
+        <span class="step-num">02 //</span>
+        <div><div class="step-title">Enter The Word</div><div class="step-desc">Use the ▲ ▼ slots to spell out the decoded word, then hit <code>Unlock The Door</code>.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+<div id="encounter-screen">
+  <video id="encounter-video" playsinline webkit-playsinline="true" muted><source src="encounter.mp4" type="video/mp4"></video>
+</div>
+
+
+
+<!--WINNERS YAYYYY-->
+<div id="win-screen">
+  <video class="win-spark-video" muted autoplay loop playsinline webkit-playsinline="true"><source src="forest.mp4" type="video/mp4"></video>
+  <div class="win-title" id="win-title">ARCHAIC</div>
+  <div class="win-house" id="win-house-name">— has cracked the cipher!</div>
+  <div class="win-sub">The door gives way. <em>Well played.</em></div>
+</div>
+
+<script>
+  let selectedSpecialty=null;
+  function playSound(id){
+    const a=document.getElementById(id);
+    if (a){a.currentTime = 0; a.play().catch(()=>{});}
+  }
+
+
+  //tries video with sound im keeping it for mobile safety net
+  function playVideoSafe(video){
+    video.muted = false;
+    const p = video.play();
+    if (p && p.catch){
+      p.catch(()=>{
+        video.muted = true;
+        video.play().catch(()=>{});
+      });
+    }
+  }
+
+
+  //TEAM PICKING
+  function selectSpecialty(name,card){
+    playSound('click-sound');
+    selectedSpecialty=name;
+    document.querySelectorAll('.team-card').forEach(c=> c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('enter-btn').disabled=false;
+  }
+  function scrollTeams(dir){
+    document.getElementById('teams-scroll').scrollBy({left:dir * 200,behavior:'smooth'});
+  }
+
+  //CUTSCENES
+  function playEncounterCutscene(callback){
+    const screen=document.getElementById('encounter-screen');
+    const video=document.getElementById('encounter-video');
+    screen.style.display='flex';
+    video.currentTime = 0;
+    video.controls = false;
+    video.setAttribute('disablepictureinpicture',true);
+    playVideoSafe(video);
+    video.onended = ()=>{screen.style.display = 'none'; callback(); };
+    screen.onclick = (e)=> e.preventDefault();
+  }
+
+
+
+  function enterChamber(){
+    if (!selectedSpecialty) return;
+    playSound('click-sound');
+    playEncounterCutscene(()=>{
+      document.getElementById('landing-page').style.display = 'none';
+      document.getElementById('castle-video').style.display = 'none';
+      document.getElementById('chamber-page').classList.add('active');
+      document.getElementById('player-badge').textContent = `TEAM // ${selectedSpecialty.toUpperCase()}`;
+    });
+  }
+
+
+  //CIPHER WHEEL
+  const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const outerLettersEl=document.getElementById('outer-letters');
+  const innerLettersEl=document.getElementById('inner-letters');
+  const shiftDisplay=document.getElementById('shift-display');
+  const svgEl=document.getElementById('wheel-svg');
+  const ns='http://www.w3.org/2000/svg';
+
+  [[148,'#d4842a',0.45],[118,'#d4842a',0.15],[95,'#c9a84c',0.3]].forEach(([r,col,op])=>{
+    const c = document.createElementNS(ns,'circle');
+    c.setAttribute('cx',160); c.setAttribute('cy',160); c.setAttribute('r',r);
+    c.setAttribute('fill','none'); c.setAttribute('stroke',col);
+    c.setAttribute('stroke-opacity',op); c.setAttribute('stroke-width','1');
+    svgEl.appendChild(c);
+  });
+  const tri = document.createElementNS(ns,'polygon');
+  tri.setAttribute('points','155,8 165,8 160,22'); tri.setAttribute('fill','#c9a84c'); svgEl.appendChild(tri);
+  alphabet.forEach((letter,i)=>{
+    const angle = (i*360/26)-90;
+    const rad = angle * Math.PI / 180;
+    const el = document.createElement('div');
+    el.className = 'letter outer-letter';
+    el.textContent = letter;
+    el.style.left = (160+132*Math.cos(rad))+'px';
+    el.style.top  = (160+132*Math.sin(rad))+'px';
+    el.style.transform = `translate(-50%,-50%) rotate(${angle+90}deg)`;
+    outerLettersEl.appendChild(el);
+  });
+  alphabet.forEach((letter,i)=>{
+    const angle = (i*360/26)-90;
+    const rad = angle * Math.PI / 180;
+    const el = document.createElement('div');
+    el.className = 'letter inner-letter';
+    el.style.position = 'absolute';
+    el.textContent = letter;
+    el.style.left = (160+106*Math.cos(rad))+'px';
+    el.style.top  = (160+106*Math.sin(rad))+'px';
+    el.style.transform = `translate(-50%,-50%) rotate(${angle+90}deg)`;
+    innerLettersEl.appendChild(el);
+  });
+
+  let currentRotation = 0,isDragging = false,startAngle = 0;
+  function getAngle(e){
+    const evt = e.touches ? e.touches[0] :e;
+    const rect = outerLettersEl.getBoundingClientRect();
+    return Math.atan2(evt.clientY-(rect.top+rect.height/2),evt.clientX-(rect.left+rect.width/2)) * 180/Math.PI;
+  }
+  outerLettersEl.addEventListener('mousedown',e =>{isDragging = true; startAngle = getAngle(e); e.preventDefault();});
+  outerLettersEl.addEventListener('touchstart',e=>{isDragging = true; startAngle = getAngle(e); e.preventDefault(); },{passive:false});
+  document.addEventListener('mousemove',e=>{
+    if (!isDragging) return;
+    const curr = getAngle(e);
+    currentRotation = ((currentRotation+curr-startAngle) % 360+360) % 360;
+    outerLettersEl.style.transform = `rotate(${currentRotation}deg)`;
+    startAngle = curr;
+    const shift = Math.round(currentRotation / (360/26)) % 26;
+    shiftDisplay.textContent = `SHIFT:${shift}  |  A → ${alphabet[shift]}`;
+  });
+  document.addEventListener('touchmove',e=>{
+    if (!isDragging) return;
+    const curr = getAngle(e);
+    currentRotation = ((currentRotation+curr-startAngle) % 360+360) % 360;
+    outerLettersEl.style.transform = `rotate(${currentRotation}deg)`;
+    startAngle = curr;
+    const shift = Math.round(currentRotation/(360/26)) % 26;
+    shiftDisplay.textContent = `SHIFT:${shift}|A → ${alphabet[shift]}`;
+  },{passive:false});
+  document.addEventListener('mouseup',()=> isDragging = false);
+  document.addEventListener('touchend',()=> isDragging = false);
+
+
+
+  //KEYPAD+ THE ANSWERW
+  const ANSWER = 'ARCHAIC';
+  const keySlots = [];
+  const slotsContainer = document.getElementById('keypad-slots');
+  ANSWER.split('').forEach(()=>{
+    let val = 0;
+    const wrap = document.createElement('div'); wrap.className = 'key-slot';
+    const up = document.createElement('button'); up.className = 'slot-btn'; up.textContent = '▲';
+    const box = document.createElement('div'); box.className = 'slot-letter'; box.textContent = 'A';
+    const dn = document.createElement('button'); dn.className = 'slot-btn'; dn.textContent = '▼';
+    up.onclick = ()=>{val = (val+1)%26; box.textContent = alphabet[val]; playSound('click-sound'); };
+    dn.onclick = ()=>{val = (val+25)%26; box.textContent = alphabet[val]; playSound('click-sound'); };
+    wrap.appendChild(up); wrap.appendChild(box); wrap.appendChild(dn);
+    slotsContainer.appendChild(wrap);
+    keySlots.push({get:()=> alphabet[val],el:box});
+  });
+
+  function checkAnswer(){
+    const entered = keySlots.map(s=> s.get()).join('');
+    const errEl = document.getElementById('keypad-error');
+    if (entered===ANSWER){
+      const btn=document.getElementById('unlock-btn');
+      btn.textContent='Door Unlocked';
+      btn.classList.add('success'); btn.disabled = true;
+      errEl.textContent = '';
+      keySlots.forEach(s=> s.el.classList.add('correct'));
+      setTimeout(showWinScreen,900);
+    } else{
+      errEl.textContent = '✗ Not it. Try again.';
+      setTimeout(()=> errEl.textContent = '',2500);
+    }
+  }
+
+  function showWinScreen(){
+    document.getElementById('win-house-name').textContent=`Team ${selectedSpecialty} has cracked the cipher!`;
+    document.getElementById('win-screen').classList.add('show');
+    playVideoSafe(document.querySelector('.win-spark-video'));
+  }
+
+  //JOURNAL THING
+  function openJournal(img){
+    playSound('click-sound');
+    document.getElementById('lightbox-img').src=img.src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox(){
+    document.getElementById('lightbox').classList.remove('open');
+  }
+
+  //SOUND TOGGLE
+  const fireplaceVideo=document.getElementById('castle-video');
+  let videoMuted=true;
+  function toggleAudio(){
+    const toggle=document.getElementById('audio-toggle');
+    if (videoMuted){fireplaceVideo.muted=false; toggle.classList.remove('muted'); toggle.textContent='🔊'; videoMuted=false; }
+    else{fireplaceVideo.muted=true; toggle.classList.add('muted'); toggle.textContent = '🔇'; videoMuted = true; }
+  }
+  fireplaceVideo.play().catch(()=>{fireplaceVideo.muted = true; fireplaceVideo.play().catch(()=>{});});
+
+  //browsers block unmuted autoplay before anythinj
+  let audioUnlocked=false;
+  function unlockAudioOnce(e){
+    if (audioUnlocked) return;
+    if (e && e.target && e.target.closest && e.target.closest('#audio-toggle')) return; //toggle button handles its own state
+    audioUnlocked=true;
+    fireplaceVideo.muted=false;
+    videoMuted=false;
+    document.getElementById('audio-toggle').classList.remove('muted');
+    document.getElementById('audio-toggle').textContent='🔊';
+  }
+  window.addEventListener('click',unlockAudioOnce,{once:true});
+  window.addEventListener('touchstart',unlockAudioOnce,{once:true});
+</script>
+</body>
+</html>
